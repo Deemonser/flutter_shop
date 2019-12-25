@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_shop/widget/BottomNavigationIcon.dart';
 
 import 'cart_page.dart';
@@ -31,12 +32,16 @@ class _IndexPageState extends State<IndexPage> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.instance = ScreenUtil(width: 750, height: 1334)..init(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("百姓生活+"),
         iconTheme: IconThemeData(color: Colors.white),
       ),
-      body: _page[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _page,
+      ),
       backgroundColor: Color.fromRGBO(244, 245, 245, 1.0),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
