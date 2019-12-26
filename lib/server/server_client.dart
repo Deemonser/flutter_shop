@@ -1,20 +1,27 @@
 import "package:dio/dio.dart";
 import 'dart:async';
-import 'dart:io';
+
+
 
 class ServerClient {
   static const server_url = "http://v.jspang.com:8088/baixing";
 
   static const home_page = server_url + '/wxmini/homePageContent'; // 商家首页信息
-  static const home_hot = server_url + 'wxmini/homePageBelowConten'; //商城首页热卖商品拉取
+  static const home_hot =
+      server_url + '/wxmini/homePageBelowConten'; //商城首页热卖商品拉取
 
   Future request(url, {formData}) async {
     try {
-      print('开始获取数据...............');
+      print('开始获取数据..............url:$url');
       Response response;
       Dio dio = new Dio();
       dio.options.contentType = "application/x-www-form-urlencoded";
-      response = await dio.post(home_page, data: formData);
+      if (formData == null) {
+        response = await dio.post(url);
+      } else {
+        response = await dio.post(url, data: formData);
+      }
+
       if (response.statusCode == 200) {
         return response.data;
       } else {
@@ -30,13 +37,8 @@ class ServerClient {
     return request(home_page, formData: formData);
   }
 
-
-  Future getHomeHotContent() async {
-    var formData = 1;
-    return request(home_hot, formData: formData);
+  Future getHomeHotContent(int page) async {
+    var formPage = {'page': page};
+    return request(home_hot, formData: formPage);
   }
-
-
-
-
 }
