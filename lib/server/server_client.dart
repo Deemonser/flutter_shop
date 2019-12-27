@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import "package:dio/dio.dart";
 import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter_shop/model/category_bean.dart';
 
 
 
@@ -7,8 +12,9 @@ class ServerClient {
   static const server_url = "http://v.jspang.com:8088/baixing";
 
   static const home_page = server_url + '/wxmini/homePageContent'; // 商家首页信息
-  static const home_hot =
-      server_url + '/wxmini/homePageBelowConten'; //商城首页热卖商品拉取
+  static const home_hot = server_url + '/wxmini/homePageBelowConten'; //商城首页热卖商品拉取
+  static const category = server_url + '/wxmini/getCategory'; //分类
+
 
   Future request(url, {formData}) async {
     try {
@@ -41,4 +47,13 @@ class ServerClient {
     var formPage = {'page': page};
     return request(home_hot, formData: formPage);
   }
+
+
+  Future<CategoryBean> getCategory() async {
+    var response = await request(category);
+    var data = json.decode(response.toString());
+    return CategoryBean.fromJson(data);
+  }
+
+
 }
