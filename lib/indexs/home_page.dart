@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_shop/routers/routers.dart';
 import 'package:flutter_shop/server/server_client.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -58,13 +59,11 @@ class _HomePageState extends State<HomePage>
         hotKey.currentState.loadMore();
       },
       footer: ClassicalFooter(
-          bgColor:Colors.white,
+          bgColor: Colors.white,
           textColor: Colors.pink,
           infoColor: Colors.pink,
           noMoreText: '',
-          loadReadyText:'上拉加载....'
-
-      ),
+          loadReadyText: '上拉加载....'),
       child: ListView(
         children: <Widget>[
           HomeSwiper(swiperList: swiperList),
@@ -97,6 +96,10 @@ class HomeSwiper extends StatelessWidget {
       height: ScreenUtil().setHeight(333),
       width: ScreenUtil().setWidth(750),
       child: Swiper(
+        onTap: (index) {
+          Routers.router.navigateTo(
+              context, "/detail?id=${swiperList[index]['goodsId']}");
+        },
         itemBuilder: (BuildContext context, int index) => Image.network(
           "${swiperList[index]['image']}",
           fit: BoxFit.fill,
@@ -118,7 +121,7 @@ class TopNav extends StatelessWidget {
   Widget _gridViewItem(BuildContext context, item) {
     return InkWell(
       onTap: () {
-        print('点击');
+
       },
       child: Column(
         children: <Widget>[
@@ -204,8 +207,9 @@ class Recommend extends StatelessWidget {
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.fromLTRB(10.0, 2.0, 0, 5.0),
       decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(bottom: BorderSide(width: 1, color: Colors.black12))),
+        color: Colors.white,
+//        border: Border(bottom: BorderSide(width: 1, color: Colors.black12)),
+      ),
       child: Text(
         '商品推荐',
         style: TextStyle(color: Colors.pink),
@@ -215,32 +219,48 @@ class Recommend extends StatelessWidget {
 
   Widget _recommendList() {
     return Container(
-      height: ScreenUtil().setHeight(280),
-      child: ListView.builder(
-          itemCount: recommendList.length,
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (context, index) => _item(index)),
+      height: ScreenUtil().setHeight(310),
+      decoration: BoxDecoration(
+          border: Border(
+              bottom: BorderSide(color: Colors.black12, width: 1),
+              top: BorderSide(color: Colors.black12, width: 1))),
+      child: ListView.separated(
+        itemCount: recommendList.length,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) => _item(context, index),
+        separatorBuilder: (context, index) => VerticalDivider(
+          color: Colors.black12,
+        ),
+      ),
     );
   }
 
-  Widget _item(index) {
-    return Container(
-      height: ScreenUtil().setHeight(280),
-      width: ScreenUtil().setWidth(250),
-      padding: EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(left: BorderSide(width: 1, color: Colors.black12))),
-      child: Column(
-        children: <Widget>[
-          Image.network(recommendList[index]['image']),
-          Text('￥${recommendList[index]['mallPrice']}'),
-          Text(
-            '￥${recommendList[index]['price']}',
-            style: TextStyle(
-                decoration: TextDecoration.lineThrough, color: Colors.grey),
-          )
-        ],
+  Widget _item(context, index) {
+    return InkWell(
+      onTap: () {
+        Routers.router.navigateTo(
+            context, "/detail?id=${recommendList[index]['goodsId']}");
+      },
+      child: Container(
+        width: ScreenUtil().setWidth(240),
+        padding: EdgeInsets.all(8.0),
+        child: Column(
+          children: <Widget>[
+            Image.network(
+              recommendList[index]['image'],
+              height: ScreenUtil().setHeight(180),
+            ),
+            Text('￥${recommendList[index]['mallPrice']}'),
+            Container(
+              child: Text(
+                '￥${recommendList[index]['price']}',
+                maxLines: 1,
+                style: TextStyle(
+                    decoration: TextDecoration.lineThrough, color: Colors.grey),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -248,8 +268,8 @@ class Recommend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: ScreenUtil().setHeight(340),
-      margin: EdgeInsets.only(top: 10.0),
+      margin: EdgeInsets.only(top: 10.0, bottom: 10),
+      color: Colors.white,
       child: Column(
         children: <Widget>[_title(context), _recommendList()],
       ),
@@ -278,17 +298,25 @@ class FloorContent extends StatelessWidget {
 
   FloorContent({Key key, this.goodsList}) : super(key: key);
 
+  BuildContext _context;
+
   @override
   Widget build(BuildContext context) {
+    _context = context;
     return Column(
       children: <Widget>[_firstFloor(), _secondFloor()],
     );
   }
 
   Widget _goods(Map goods) {
-    return Container(
-      width: ScreenUtil().setWidth(375),
-      child: Image.network(goods['image']),
+    return InkWell(
+      onTap: () {
+        Routers.router.navigateTo(_context, "/detail?id=${goods['goodsId']}");
+      },
+      child: Container(
+        width: ScreenUtil().setWidth(375),
+        child: Image.network(goods['image']),
+      ),
     );
   }
 
@@ -353,7 +381,9 @@ class _HotPageState extends State<HotPage> {
         _goodsList.length != 0
             ? Wrap(
                 spacing: 2,
-                children: _goodsList.map((item) => _buildChild(item)).toList(),
+                children: _goodsList
+                    .map((item) => _buildChild(context, item))
+                    .toList(),
               )
             : Text("")
       ],
@@ -371,12 +401,14 @@ class _HotPageState extends State<HotPage> {
     ),
   );
 
-  Widget _buildChild(Map item) {
+  Widget _buildChild(context, Map item) {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        Routers.router.navigateTo(context, "/detail?id=${item['goodsId']}");
+      },
       child: Container(
         width: ScreenUtil().setWidth(372),
-        color:Colors.white,
+        color: Colors.white,
         padding: EdgeInsets.all(5.0),
         margin: EdgeInsets.only(bottom: 3.0),
         child: Column(
