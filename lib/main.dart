@@ -19,7 +19,7 @@ void main() {
       providers: Providers()
         ..provide(Provider.value(CategoryProvider()))
         ..provide(Provider.value(DetailProvider()))
-        ..provide(Provider.value(CartProvide()))
+        ..provide(Provider.value(CartProvider()))
         ..provide(Provider.value(CategoryGoodsProvider())),
     ),
   );

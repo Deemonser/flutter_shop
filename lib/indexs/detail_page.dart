@@ -245,7 +245,7 @@ class DetailsBottom extends StatelessWidget {
           InkWell(
             onTap: ()async {
               var info = Provide.value<DetailProvider>(context).detailsBean.goodInfo;
-              await Provide.value<CartProvide>(context).save(info.goodsId, info.goodsName, 1, info.presentPrice, info.image1);
+              await Provide.value<CartProvider>(context).save(info.goodsId, info.goodsName, 1, info.presentPrice, info.image1);
             },
             child: Container(
               alignment: Alignment.center,
@@ -260,7 +260,7 @@ class DetailsBottom extends StatelessWidget {
           ),
           InkWell(
             onTap: ()async {
-              await Provide.value<CartProvide>(context).clear();
+              await Provide.value<CartProvider>(context).clear();
             },
             child: Container(
               alignment: Alignment.center,
